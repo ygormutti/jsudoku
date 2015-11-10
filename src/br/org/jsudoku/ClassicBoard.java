@@ -12,77 +12,71 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ClassicBoard implements Board {
+public class ClassicBoard {
 
-    public static final int BOARD_DIMENSION = 9;
-    public static final int BOX_DIMENSION = 3;
-    Integer[][] cells;
+    public static final int BOARD_SIZE = 9;
+    public static final int BOX_SIZE = 3;
+    public static final int CELLS_PER_BOX = BOX_SIZE * BOX_SIZE;
+    public static final int BOXES_PER_SIDE = BOARD_SIZE / BOX_SIZE;
+    public static final int BOXES = BOXES_PER_SIDE * BOXES_PER_SIDE;
+    WritableCell[][] cells;
     // Memoization caches
     Map neighbors;
     Set errors;
     Set hints;
     Set readOnlyCells;
 
-    public ClassicBoard(Hint[] initialHints) {
-        cells = new Integer[BOARD_DIMENSION][BOARD_DIMENSION];
+    public ClassicBoard(Cell[] initialHints) {
+        cells = new WritableCell[BOARD_SIZE][BOARD_SIZE];
+
+        // fill initial values
         readOnlyCells = new HashSet();
         for (int i = 0; i < initialHints.length; i++) {
-            Hint hint = initialHints[i];
-            Cell cell = hint.getCell();
+            Cell hint = initialHints[i];
 
-            cells[cell.getRow()][cell.getColumn()] = hint.getDigit();
-            readOnlyCells.add(cell);
+            WritableCell cellCopy = new WritableCell(hint);
+            cells[hint.getRow()][hint.getColumn()] = cellCopy;
+            readOnlyCells.add(cellCopy);
         }
-        neighbors = new HashMap();
+
+        // creates the empty cells
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                if (cells[row][column] == null) {
+                    cells[row][column] = new WritableCell(row, column, 0);
+                }
+            }
+        }
+
+        neighbors = new HashMap(); // cell X neighbor set
         errors = new HashSet();
         hints = new HashSet();
     }
 
-    public Integer getDigit(Cell cell) {
-        return getDigit(cell.getRow(), cell.getColumn());
-    }
-
-    public Integer getDigit(int row, int column) {
+    public Cell getCell(int row, int column) {
         return cells[row][column];
     }
 
-    public void setDigit(Hint hint) throws ReadOnlyCellException {
-        setDigit(hint.getCell(), hint.getDigit());
+    public void setHint(Cell hint) throws ReadOnlyCellException {
+        setDigit(getCell(hint.getRow(), hint.getColumn()), hint.getDigit());
     }
 
-    public void setDigit(int row, int column, Integer digit) throws ReadOnlyCellException {
-        setDigit(new Cell(row, column), digit);
-    }
-
-    public void setDigit(Cell cell, Integer digit) throws ReadOnlyCellException {
-        int row = cell.getRow();
-        int column = cell.getColumn();
-        if (digit != null && (digit.intValue() < 1 || digit.intValue() > 9)) {
-            throw new IllegalArgumentException("digit must be between 1-9 or null");
+    public Set setDigit(Cell cell, int digit) throws ReadOnlyCellException {
+        if (digit < 0 || digit > 9) {
+            throw new IllegalArgumentException("digit must be between 0-9");
         }
 
         if (readOnlyCells.contains(cell)) {
             throw new ReadOnlyCellException("cell is read only");
         }
 
-        cells[row][column] = digit;
+        cell.setDigit(digit);
 
         // errors and hints should be refeshed
         errors = null;
         hints = null;
-    }
 
-    public Set setDigitAndGetErrors(Cell cell, Integer digit) throws ReadOnlyCellException {
-        return setDigitAndGetErrors(cell.getRow(), cell.getColumn(), digit);
-    }
-
-    public Set setDigitAndGetErrors(int row, int column, Integer digit) throws ReadOnlyCellException {
-        setDigit(row, column, digit);
         return getErrors();
-    }
-
-    public Set getNeighbors(Cell cell) {
-        return getNeighbors(cell, true);
     }
 
     public Set getHints() {
@@ -101,7 +95,37 @@ public class ClassicBoard implements Board {
         return errors;
     }
 
-    private Set getNeighbors(Cell cell, boolean clone) {
+    public Cell[][] getBoxesCells() {
+        Cell[][] ret = new Cell[BOXES][CELLS_PER_BOX];
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                int boxRow = row / BOX_SIZE;
+                int boxColumn = column / BOX_SIZE;
+                int boxNumber = row * 3 + column;
+
+                int boxStartRow = boxRow * BOX_SIZE;
+                int boxStartColumn = boxColumn * BOX_SIZE;
+
+                ret[boxNumber] = (Cell[]) getBoxNeighbors(boxStartRow, boxStartColumn).toArray(new Cell[CELLS_PER_BOX]);
+            }
+        }
+        return ret;
+    }
+
+    private Set getBoxNeighbors(int boxStartRow, int boxStartColumn) {
+        Set result = new HashSet();
+
+        // neighbors at the same box
+        for (int c = boxStartColumn; c < boxStartColumn + BOX_SIZE; c++) {
+            for (int r = boxStartRow; r < boxStartRow + BOX_SIZE; r++) {
+                result.add(getCell(r, c));
+            }
+        }
+
+        return result;
+    }
+
+    private Set getNeighbors(Cell cell) {
         Set result = (Set) neighbors.get(cell);
 
         if (result == null) {
@@ -110,34 +134,26 @@ public class ClassicBoard implements Board {
             int column = cell.getColumn();
 
             // neighbors at the same row
-            for (int i = 0; i < BOARD_DIMENSION; i++) {
-                result.add(new Cell(row, i));
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                result.add(getCell(row, i));
             }
 
             // neighbors at the same column
-            for (int i = 0; i < BOARD_DIMENSION; i++) {
-                result.add(new Cell(i, column));
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                result.add(getCell(i, column));
             }
 
-            int boxRow = (row / BOX_DIMENSION) * BOX_DIMENSION;
-            int boxColumn = (row / BOX_DIMENSION) * BOX_DIMENSION;
+            int boxStartRow = (row / BOX_SIZE) * BOX_SIZE;
+            int boxStartColumn = (column / BOX_SIZE) * BOX_SIZE;
 
-            // neighbors at the same box
-            for (int c = boxColumn; c < boxColumn + BOX_DIMENSION; c++) {
-                for (int r = boxRow; r < boxRow + BOX_DIMENSION; r++) {
-                    result.add(new Cell(r, c));
-                }
-            }
+            result.addAll(getBoxNeighbors(boxStartRow, boxStartColumn));
 
             // removes the cell itself
-            result.remove(new Cell(row, column));
+            result.remove(getCell(row, column));
 
             neighbors.put(cell, result);
         }
 
-        if (clone) {
-            result = new HashSet(result);
-        }
         return result;
     }
 
@@ -146,9 +162,9 @@ public class ClassicBoard implements Board {
             errors = new HashSet();
             hints = new HashSet();
 
-            for (int c = 0; c < BOARD_DIMENSION; c++) {
-                for (int r = 0; r < BOARD_DIMENSION; r++) {
-                    Cell cell = new Cell(r, c);
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                for (int r = 0; r < BOARD_SIZE; r++) {
+                    Cell cell = getCell(r, c);
 
                     // cells on the same box/line/column can't contain the same digit
                     errors.addAll(getNeighborsWithSameDigit(cell));
@@ -159,7 +175,8 @@ public class ClassicBoard implements Board {
                         // all cells must have at least one possible digit
                         errors.add(cell);
                     } else if (possibleDigits.size() == 1) {
-                        Hint hint = new Hint(cell, (Integer) possibleDigits.iterator().next());
+                        WritableCell hint = new WritableCell(cell);
+                        hint.setDigit(((Integer)possibleDigits.iterator().next()).intValue());
                         hints.add(hint);
                     }
                 }
@@ -169,12 +186,12 @@ public class ClassicBoard implements Board {
 
     private Collection getNeighborsWithSameDigit(Cell cell) {
         Set nwsd = new HashSet();
-        Integer digit = getDigit(cell);
+        int digit = cell.getDigit();
 
-        if (digit != null) {
-            for (Iterator i = getNeighbors(cell, false).iterator(); i.hasNext();) {
+        if (digit != 0) {
+            for (Iterator i = getNeighbors(cell).iterator(); i.hasNext();) {
                 Cell neighbor = (Cell) i.next();
-                if (getDigit(neighbor).equals(digit)) {
+                if (neighbor.getDigit() == digit) {
                     nwsd.add(neighbor);
                 }
             }
@@ -191,11 +208,11 @@ public class ClassicBoard implements Board {
             digits.add(new Integer(i));
         }
 
-        for (Iterator i = getNeighbors(cell, false).iterator(); i.hasNext();) {
+        for (Iterator i = getNeighbors(cell).iterator(); i.hasNext();) {
             Cell neighbor = (Cell) i.next();
-            Integer digit = getDigit(neighbor);
-            if (digit != null) {
-                digits.remove(digit);
+            int digit = neighbor.getDigit();
+            if (digit != 0) {
+                digits.remove(new Integer(digit));
             }
         }
 

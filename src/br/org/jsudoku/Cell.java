@@ -6,15 +6,21 @@ package br.org.jsudoku;
 
 public class Cell {
 
+    int digit;
     int row;
     int column;
 
-    public Cell(int row, int column) {
+    public Cell(int row, int column, int digit) {
         if (row < 0 || column < 0) {
             throw new IllegalArgumentException("row and column indexes must be positive");
         }
         this.row = row;
         this.column = column;
+        this.digit = digit;
+    }
+
+    public Cell(Cell original) {
+        this(original.row, original.column, original.digit);
     }
 
     public int getRow() {
@@ -25,10 +31,19 @@ public class Cell {
         return column;
     }
 
+    public int getDigit() {
+        return digit;
+    }
+
+    protected void setDigit(int digit) {
+        this.digit = digit;
+    }
+
     public int hashCode() {
-        int hash = 5;
-        hash = 89 * hash + this.row;
-        hash = 89 * hash + this.column;
+        int hash = 3;
+        hash = 71 * hash + this.digit;
+        hash = 71 * hash + this.row;
+        hash = 71 * hash + this.column;
         return hash;
     }
 
@@ -40,6 +55,9 @@ public class Cell {
             return false;
         }
         final Cell other = (Cell) obj;
+        if (this.digit != other.digit) {
+            return false;
+        }
         if (this.row != other.row) {
             return false;
         }
