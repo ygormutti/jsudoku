@@ -9,6 +9,10 @@ public class Hint {
     Cell cell;
     Integer digit;
 
+    public Hint(int row, int column, int digit){
+        this(new Cell(row - 1, column - 1), new Integer(digit));
+    }
+
     public Hint(Cell cell, Integer digit) {
         this.cell = cell;
         this.digit = digit;

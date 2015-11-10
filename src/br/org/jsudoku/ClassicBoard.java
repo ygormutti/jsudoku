@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ClassicBoard {
+public class ClassicBoard implements Board {
 
     public static final int BOARD_DIMENSION = 9;
     public static final int BOX_DIMENSION = 3;
