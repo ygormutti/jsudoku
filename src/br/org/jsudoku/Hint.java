@@ -10,7 +10,7 @@ public class Hint {
     Integer digit;
 
     public Hint(int row, int column, int digit){
-        this(new Cell(row - 1, column - 1), new Integer(digit));
+        this(new Cell(row, column), new Integer(digit));
     }
 
     public Hint(Cell cell, Integer digit) {
