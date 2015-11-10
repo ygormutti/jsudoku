@@ -21,9 +21,18 @@ public class ClassicBoard {
     Map neighbors;
     Set errors;
     Set hints;
+    Set readOnlyCells;
 
-    public ClassicBoard() {
+    public ClassicBoard(Hint[] initialHints) {
         cells = new Integer[BOARD_DIMENSION][BOARD_DIMENSION];
+        readOnlyCells = new HashSet();
+        for (int i = 0; i < initialHints.length; i++) {
+            Hint hint = initialHints[i];
+            Cell cell = hint.getCell();
+
+            cells[cell.getRow()][cell.getColumn()] = hint.getDigit();
+            readOnlyCells.add(cell);
+        }
         neighbors = new HashMap();
         errors = new HashSet();
         hints = new HashSet();
@@ -37,18 +46,25 @@ public class ClassicBoard {
         return cells[row][column];
     }
 
-    public void setDigit(Hint hint) {
+    public void setDigit(Hint hint) throws ReadOnlyCellException {
         setDigit(hint.getCell(), hint.getDigit());
     }
 
-    public void setDigit(Cell cell, Integer digit) {
-        setDigit(cell.getRow(), cell.getColumn(), digit);
+    public void setDigit(int row, int column, Integer digit) throws ReadOnlyCellException {
+        setDigit(new Cell(row, column), digit);
     }
 
-    public void setDigit(int row, int column, Integer digit) {
+    public void setDigit(Cell cell, Integer digit) throws ReadOnlyCellException {
+        int row = cell.getRow();
+        int column = cell.getColumn();
         if (digit != null && (digit.intValue() < 1 || digit.intValue() > 9)) {
             throw new IllegalArgumentException("digit must be between 1-9 or null");
         }
+
+        if (readOnlyCells.contains(cell)) {
+            throw new ReadOnlyCellException("cell is read only");
+        }
+
         cells[row][column] = digit;
 
         // errors and hints should be refeshed
@@ -56,11 +72,11 @@ public class ClassicBoard {
         hints = null;
     }
 
-    public Set setDigitAndGetErrors(Cell cell, Integer digit) {
+    public Set setDigitAndGetErrors(Cell cell, Integer digit) throws ReadOnlyCellException {
         return setDigitAndGetErrors(cell.getRow(), cell.getColumn(), digit);
     }
 
-    public Set setDigitAndGetErrors(int row, int column, Integer digit) {
+    public Set setDigitAndGetErrors(int row, int column, Integer digit) throws ReadOnlyCellException {
         setDigit(row, column, digit);
         return getErrors();
     }
