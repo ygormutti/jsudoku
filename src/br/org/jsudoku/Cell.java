@@ -20,12 +20,11 @@ public class Cell {
     public int getRow() {
         return row;
     }
-    
+
     public int getColumn() {
         return column;
     }
 
-    @Override
     public int hashCode() {
         int hash = 5;
         hash = 89 * hash + this.row;
@@ -33,7 +32,6 @@ public class Cell {
         return hash;
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

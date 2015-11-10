@@ -4,8 +4,6 @@
  */
 package br.org.jsudoku;
 
-import java.util.Objects;
-
 public class Hint {
 
     Cell cell;
@@ -32,15 +30,13 @@ public class Hint {
         this.digit = digit;
     }
 
-    @Override
     public int hashCode() {
         int hash = 7;
-        hash = 41 * hash + Objects.hashCode(this.cell);
-        hash = 41 * hash + Objects.hashCode(this.digit);
+        hash = 41 * hash + this.cell.hashCode();
+        hash = 41 * hash + this.digit.hashCode();
         return hash;
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -49,10 +45,10 @@ public class Hint {
             return false;
         }
         final Hint other = (Hint) obj;
-        if (!Objects.equals(this.cell, other.cell)) {
+        if (!this.cell.equals(other.cell)) {
             return false;
         }
-        if (!Objects.equals(this.digit, other.digit)) {
+        if (!this.digit.equals(other.digit)) {
             return false;
         }
         return true;

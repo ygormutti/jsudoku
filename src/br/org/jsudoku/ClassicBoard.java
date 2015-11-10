@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,15 +18,15 @@ public class ClassicBoard {
     public static final int BOX_DIMENSION = 3;
     Integer[][] cells;
     // Memoization caches
-    Map<Cell, Set<Cell>> neighbors;
-    Set<Cell> errors;
-    Set<Hint> hints;
+    Map neighbors;
+    Set errors;
+    Set hints;
 
     public ClassicBoard() {
         cells = new Integer[BOARD_DIMENSION][BOARD_DIMENSION];
-        neighbors = new HashMap<>();
-        errors = new HashSet<>();
-        hints = new HashSet<>();
+        neighbors = new HashMap();
+        errors = new HashSet();
+        hints = new HashSet();
     }
 
     public Integer getDigit(Cell cell) {
@@ -45,7 +46,7 @@ public class ClassicBoard {
     }
 
     public void setDigit(int row, int column, Integer digit) {
-        if (digit != null && (digit < 1 || digit > 9)) {
+        if (digit != null && (digit.intValue() < 1 || digit.intValue() > 9)) {
             throw new IllegalArgumentException("digit must be between 1-9 or null");
         }
         cells[row][column] = digit;
@@ -55,20 +56,20 @@ public class ClassicBoard {
         hints = null;
     }
 
-    public Set<Cell> setDigitAndGetErrors(Cell cell, Integer digit) {
+    public Set setDigitAndGetErrors(Cell cell, Integer digit) {
         return setDigitAndGetErrors(cell.getRow(), cell.getColumn(), digit);
     }
 
-    public Set<Cell> setDigitAndGetErrors(int row, int column, Integer digit) {
+    public Set setDigitAndGetErrors(int row, int column, Integer digit) {
         setDigit(row, column, digit);
         return getErrors();
     }
 
-    public Set<Cell> getNeighbors(Cell cell) {
+    public Set getNeighbors(Cell cell) {
         return getNeighbors(cell, true);
     }
 
-    public Set<Hint> getHints() {
+    public Set getHints() {
         if (hints == null) {
             computeErrorsAndHints();
         }
@@ -76,7 +77,7 @@ public class ClassicBoard {
         return hints;
     }
 
-    public Set<Cell> getErrors() {
+    public Set getErrors() {
         if (errors == null) {
             computeErrorsAndHints();
         }
@@ -84,11 +85,11 @@ public class ClassicBoard {
         return errors;
     }
 
-    private Set<Cell> getNeighbors(Cell cell, boolean clone) {
-        Set<Cell> result = neighbors.get(cell);
+    private Set getNeighbors(Cell cell, boolean clone) {
+        Set result = (Set) neighbors.get(cell);
 
         if (result == null) {
-            result = new HashSet<>();
+            result = new HashSet();
             int row = cell.getRow();
             int column = cell.getColumn();
 
@@ -119,15 +120,15 @@ public class ClassicBoard {
         }
 
         if (clone) {
-            result = new HashSet<>(result);
+            result = new HashSet(result);
         }
         return result;
     }
 
     private void computeErrorsAndHints() {
         if (errors == null) { // || hints = null
-            errors = new HashSet<>();
-            hints = new HashSet<>();
+            errors = new HashSet();
+            hints = new HashSet();
 
             for (int c = 0; c < BOARD_DIMENSION; c++) {
                 for (int r = 0; r < BOARD_DIMENSION; r++) {
@@ -136,25 +137,27 @@ public class ClassicBoard {
                     // cells on the same box/line/column can't contain the same digit
                     errors.addAll(getNeighborsWithSameDigit(cell));
 
-                    Collection<Integer> possibleDigits = getPossibleDigits(cell);
+                    Collection possibleDigits = getPossibleDigits(cell);
 
                     if (possibleDigits.size() < 1) {
                         // all cells must have at least one possible digit
                         errors.add(cell);
                     } else if (possibleDigits.size() == 1) {
-                        hints.add(new Hint(cell, possibleDigits.iterator().next()));
+                        Hint hint = new Hint(cell, (Integer) possibleDigits.iterator().next());
+                        hints.add(hint);
                     }
                 }
             }
         }
     }
 
-    private Collection<Cell> getNeighborsWithSameDigit(Cell cell) {
-        Set<Cell> nwsd = new HashSet<>();
+    private Collection getNeighborsWithSameDigit(Cell cell) {
+        Set nwsd = new HashSet();
         Integer digit = getDigit(cell);
 
         if (digit != null) {
-            for (Cell neighbor : getNeighbors(cell, false)) {
+            for (Iterator i = getNeighbors(cell, false).iterator(); i.hasNext();) {
+                Cell neighbor = (Cell) i.next();
                 if (getDigit(neighbor).equals(digit)) {
                     nwsd.add(neighbor);
                 }
@@ -166,13 +169,14 @@ public class ClassicBoard {
         return nwsd;
     }
 
-    private Collection<Integer> getPossibleDigits(Cell cell) {
-        Collection<Integer> digits = new ArrayList<>();
+    private Collection getPossibleDigits(Cell cell) {
+        Collection digits = new ArrayList();
         for (int i = 1; i < 10; i++) {
-            digits.add(Integer.valueOf(i));
+            digits.add(new Integer(i));
         }
 
-        for (Cell neighbor : getNeighbors(cell, false)) {
+        for (Iterator i = getNeighbors(cell, false).iterator(); i.hasNext();) {
+            Cell neighbor = (Cell) i.next();
             Integer digit = getDigit(neighbor);
             if (digit != null) {
                 digits.remove(digit);
