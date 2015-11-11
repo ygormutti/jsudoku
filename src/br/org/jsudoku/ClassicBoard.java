@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class ClassicBoard {
     public static final int BOX_SIZE = 3;
     public static final int CELLS_PER_BOX = BOX_SIZE * BOX_SIZE;
     public static final int BOXES_PER_SIDE = BOARD_SIZE / BOX_SIZE;
-    public static final int BOXES = BOXES_PER_SIDE * BOXES_PER_SIDE;
+    public static final int BOXES_PER_BOARD = BOXES_PER_SIDE * BOXES_PER_SIDE;
     WritableCell[][] cells;
     // Memoization caches
     Map neighbors;
@@ -96,28 +97,28 @@ public class ClassicBoard {
     }
 
     public Cell[][] getBoxesCells() {
-        Cell[][] ret = new Cell[BOXES][CELLS_PER_BOX];
+        Cell[][] ret = new Cell[BOXES_PER_BOARD][];
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int column = 0; column < BOARD_SIZE; column++) {
                 int boxRow = row / BOX_SIZE;
                 int boxColumn = column / BOX_SIZE;
-                int boxNumber = row * 3 + column;
+                int boxNumber = boxRow * 3 + boxColumn;
 
                 int boxStartRow = boxRow * BOX_SIZE;
                 int boxStartColumn = boxColumn * BOX_SIZE;
 
-                ret[boxNumber] = (Cell[]) getBoxNeighbors(boxStartRow, boxStartColumn).toArray(new Cell[CELLS_PER_BOX]);
+                ret[boxNumber] = (Cell[]) getBoxCells(boxStartRow, boxStartColumn).toArray(new Cell[CELLS_PER_BOX]);
             }
         }
         return ret;
     }
 
-    private Set getBoxNeighbors(int boxStartRow, int boxStartColumn) {
-        Set result = new HashSet();
+    private List getBoxCells(int boxStartRow, int boxStartColumn) {
+        ArrayList result = new ArrayList();
 
         // neighbors at the same box
-        for (int c = boxStartColumn; c < boxStartColumn + BOX_SIZE; c++) {
-            for (int r = boxStartRow; r < boxStartRow + BOX_SIZE; r++) {
+        for (int r = boxStartRow; r < boxStartRow + BOX_SIZE; r++) {
+            for (int c = boxStartColumn; c < boxStartColumn + BOX_SIZE; c++) {
                 result.add(getCell(r, c));
             }
         }
@@ -146,7 +147,7 @@ public class ClassicBoard {
             int boxStartRow = (row / BOX_SIZE) * BOX_SIZE;
             int boxStartColumn = (column / BOX_SIZE) * BOX_SIZE;
 
-            result.addAll(getBoxNeighbors(boxStartRow, boxStartColumn));
+            result.addAll(getBoxCells(boxStartRow, boxStartColumn));
 
             // removes the cell itself
             result.remove(getCell(row, column));
@@ -176,7 +177,7 @@ public class ClassicBoard {
                         errors.add(cell);
                     } else if (possibleDigits.size() == 1) {
                         WritableCell hint = new WritableCell(cell);
-                        hint.setDigit(((Integer)possibleDigits.iterator().next()).intValue());
+                        hint.setDigit(((Integer) possibleDigits.iterator().next()).intValue());
                         hints.add(hint);
                     }
                 }
