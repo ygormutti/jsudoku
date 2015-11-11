@@ -6,8 +6,8 @@ package br.org.jsudoku;
 
 public class WritableCell extends Cell {
 
-    public WritableCell(int row, int column, int digit) {
-        super(row, column, digit);
+    public WritableCell(int row, int column) {
+        super(row, column, 0);
     }
 
     public WritableCell(Cell original) {

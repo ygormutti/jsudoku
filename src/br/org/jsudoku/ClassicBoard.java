@@ -20,31 +20,26 @@ public class ClassicBoard {
     public static final int CELLS_PER_BOX = BOX_SIZE * BOX_SIZE;
     public static final int BOXES_PER_SIDE = BOARD_SIZE / BOX_SIZE;
     public static final int BOXES_PER_BOARD = BOXES_PER_SIDE * BOXES_PER_SIDE;
-    WritableCell[][] cells;
+    Cell[][] cells;
     // Memoization caches
     Map neighbors;
     Set errors;
     Set hints;
-    Set readOnlyCells;
 
     public ClassicBoard(Cell[] initialHints) {
-        cells = new WritableCell[BOARD_SIZE][BOARD_SIZE];
+        cells = new Cell[BOARD_SIZE][BOARD_SIZE];
 
         // fill initial values
-        readOnlyCells = new HashSet();
         for (int i = 0; i < initialHints.length; i++) {
             Cell hint = initialHints[i];
-
-            WritableCell cellCopy = new WritableCell(hint);
-            cells[hint.getRow()][hint.getColumn()] = cellCopy;
-            readOnlyCells.add(cellCopy);
+            cells[hint.getRow()][hint.getColumn()] = hint;
         }
 
         // creates the empty cells
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int column = 0; column < BOARD_SIZE; column++) {
                 if (cells[row][column] == null) {
-                    cells[row][column] = new WritableCell(row, column, 0);
+                    cells[row][column] = new WritableCell(row, column);
                 }
             }
         }
@@ -67,11 +62,11 @@ public class ClassicBoard {
             throw new IllegalArgumentException("digit must be between 0-9");
         }
 
-        if (readOnlyCells.contains(cell)) {
+        if (!(cell instanceof WritableCell)) {
             throw new ReadOnlyCellException("cell is read only");
         }
 
-        cell.setDigit(digit);
+        ((WritableCell)cell).setDigit(digit);
 
         // errors and hints should be refeshed
         errors = null;
@@ -176,7 +171,7 @@ public class ClassicBoard {
                         // all cells must have at least one possible digit
                         errors.add(cell);
                     } else if (possibleDigits.size() == 1) {
-                        WritableCell hint = new WritableCell(cell);
+                        Cell hint = new Cell(cell);
                         hint.setDigit(((Integer) possibleDigits.iterator().next()).intValue());
                         hints.add(hint);
                     }
