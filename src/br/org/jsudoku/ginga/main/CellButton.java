@@ -7,8 +7,10 @@ package br.org.jsudoku.ginga.main;
 import br.org.jsudoku.Cell;
 import br.org.jsudoku.WritableCell;
 import com.sun.dtv.lwuit.Button;
+import com.sun.dtv.lwuit.Font;
 import com.sun.dtv.lwuit.plaf.Border;
 import com.sun.dtv.lwuit.plaf.Style;
+import com.sun.dtv.ui.ViewOnlyComponent;
 import java.awt.Color;
 
 public class CellButton extends Button {
@@ -54,6 +56,7 @@ public class CellButton extends Button {
     private void initStyle() {
         style = new Style();
 
+        style.setFont(Font.createSystemFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, 40));
         style.setBorder(Border.createLineBorder(5, Color.LIGHT_GRAY));
         style.setBgColor(Color.WHITE);
         style.setBgSelectionColor(Color.ORANGE);
@@ -65,6 +68,7 @@ public class CellButton extends Button {
             style.setFgColor(Color.GRAY);
         }
 
+        setAlignment(HORIZONTAL_ALIGN_CENTER);
         setStyle(style);
     }
 }
