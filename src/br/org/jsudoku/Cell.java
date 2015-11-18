@@ -35,15 +35,18 @@ public class Cell {
         return digit;
     }
 
+    public boolean isWritable() {
+        return false;
+    }
+
     protected void setDigit(int digit) {
         this.digit = digit;
     }
 
     public int hashCode() {
         int hash = 3;
-        hash = 71 * hash + this.digit;
-        hash = 71 * hash + this.row;
-        hash = 71 * hash + this.column;
+        hash = 97 * hash + this.row;
+        hash = 97 * hash + this.column;
         return hash;
     }
 
@@ -55,9 +58,6 @@ public class Cell {
             return false;
         }
         final Cell other = (Cell) obj;
-        if (this.digit != other.digit) {
-            return false;
-        }
         if (this.row != other.row) {
             return false;
         }
@@ -65,5 +65,9 @@ public class Cell {
             return false;
         }
         return true;
+    }
+
+    public String toString() {
+        return "Cell{" + "digit=" + digit + ", row=" + row + ", column=" + column + '}';
     }
 }
