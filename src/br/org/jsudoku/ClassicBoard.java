@@ -99,7 +99,7 @@ public class ClassicBoard implements Board {
         if (hints == null) {
             computeErrorsAndHints();
         }
-        System.out.println(hints.size());
+        
         return hints;
     }
 

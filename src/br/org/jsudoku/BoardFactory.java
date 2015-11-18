@@ -18,6 +18,7 @@ public class BoardFactory {
 
         if (currentBoard == classicBoards.length) {
             currentBoard = 0;
+            initClassicBoards();
         }
 
         return classicBoards[currentBoard++];
@@ -66,20 +67,6 @@ public class BoardFactory {
             new int[]{2, 0, 0, 8, 6, 0, 0, 9, 0},
             new int[]{0, 0, 0, 0, 0, 5, 2, 0, 0},
             new int[]{0, 1, 0, 0, 7, 4, 0, 0, 0},};
-        list.add(new ClassicBoard(convertMatrixToHints(hints)));
-
-        hints = new int[][]{
-            new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0},
-            new int[]{9, 7, 0, 5, 0, 8, 0, 2, 3},
-            new int[]{5, 0, 5, 1, 0, 2, 9, 0, 0},
-            //
-            new int[]{0, 0, 0, 4, 0, 1, 0, 0, 0},
-            new int[]{0, 8, 0, 4, 0, 1, 0, 0, 0},
-            new int[]{3, 0, 0, 0, 9, 0, 0, 0, 4},
-            //
-            new int[]{0, 0, 0, 0, 6, 0, 0, 0, 0},
-            new int[]{0, 9, 0, 0, 5, 0, 0, 3, 0},
-            new int[]{0, 0, 4, 9, 0, 7, 8, 0, 0},};
         list.add(new ClassicBoard(convertMatrixToHints(hints)));
 
         hints = new int[][]{

@@ -33,6 +33,12 @@ public class MainForm extends Form {
 
     public MainForm() {
         super();
+        init();
+    }
+
+    private void init()
+    {
+        removeAll();
         setLayout(new BorderLayout());
         initStyle();
         initComponents();
@@ -130,11 +136,12 @@ public class MainForm extends Form {
 
         if (key == RemoteControlEvent.VK_COLORED_KEY_0) { // red
         } else if (key == RemoteControlEvent.VK_COLORED_KEY_1) { // green
+            init();
+            repaint();
         } else if (key == RemoteControlEvent.VK_COLORED_KEY_2) { // yellow
         } else if (key == RemoteControlEvent.VK_COLORED_KEY_3) { // blue
             for (Iterator i = board.getHints().iterator(); i.hasNext();) {
                 Cell hint = (Cell) i.next();
-                System.out.println("tem dica");
                 try {
                     board.setDigit(hint, hint.getDigit());
                 } catch (ReadOnlyCellException ex) {
