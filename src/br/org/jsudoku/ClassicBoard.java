@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ClassicBoard {
+public class ClassicBoard implements Board {
 
     public static final int BOARD_SIZE = 9;
     public static final int BOX_SIZE = 3;
@@ -66,7 +66,7 @@ public class ClassicBoard {
             throw new ReadOnlyCellException("cell is read only");
         }
 
-        ((WritableCell)cell).setDigit(digit);
+        ((WritableCell) cell).setDigit(digit);
 
         // errors and hints should be refeshed
         errors = null;
@@ -121,7 +121,7 @@ public class ClassicBoard {
         return result;
     }
 
-    private Set getNeighbors(Cell cell) {
+    public Set getNeighbors(Cell cell) {
         Set result = (Set) neighbors.get(cell);
 
         if (result == null) {
@@ -145,7 +145,7 @@ public class ClassicBoard {
             result.addAll(getBoxCells(boxStartRow, boxStartColumn));
 
             // removes the cell itself
-            result.remove(getCell(row, column));
+            result.remove(cell);
 
             neighbors.put(cell, result);
         }
