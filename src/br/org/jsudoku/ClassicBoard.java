@@ -15,6 +15,24 @@ import java.util.Set;
 
 public class ClassicBoard implements Board {
 
+    private class WritableCell extends Cell {
+
+        public WritableCell(int row, int column) {
+            super(row, column, 0);
+        }
+
+        public WritableCell(Cell original) {
+            super(original.row, original.column, original.digit);
+        }
+
+        public void setDigit(int digit) {
+            super.setDigit(digit);
+        }
+
+        public boolean isWritable() {
+            return true;
+        }
+    }
     public static final int BOARD_SIZE = 9;
     public static final int BOX_SIZE = 3;
     public static final int CELLS_PER_BOX = BOX_SIZE * BOX_SIZE;
@@ -45,8 +63,7 @@ public class ClassicBoard implements Board {
         }
 
         neighbors = new HashMap(); // cell X neighbor set
-        errors = new HashSet();
-        hints = new HashSet();
+        computeErrorsAndHints();
     }
 
     public Cell getCell(int row, int column) {
@@ -58,6 +75,9 @@ public class ClassicBoard implements Board {
     }
 
     public Set setDigit(Cell cell, int digit) throws ReadOnlyCellException {
+        // it can be a hint, a cell that is not in the board
+        cell = getCell(cell.getRow(), cell.getColumn());
+
         if (digit < 0 || digit > 9) {
             throw new IllegalArgumentException("digit must be between 0-9");
         }
@@ -79,7 +99,7 @@ public class ClassicBoard implements Board {
         if (hints == null) {
             computeErrorsAndHints();
         }
-
+        System.out.println(hints.size());
         return hints;
     }
 
@@ -170,8 +190,8 @@ public class ClassicBoard implements Board {
                     if (possibleDigits.size() < 1) {
                         // all cells must have at least one possible digit
                         errors.add(cell);
-                    } else if (possibleDigits.size() == 1) {
-                        Cell hint = new Cell(cell);
+                    } else if (possibleDigits.size() == 1 && cell.getDigit() == 0) {
+                        WritableCell hint = new WritableCell(cell);
                         hint.setDigit(((Integer) possibleDigits.iterator().next()).intValue());
                         hints.add(hint);
                     }
@@ -192,26 +212,40 @@ public class ClassicBoard implements Board {
                 }
             }
 
-            nwsd.add(cell);
+            if (nwsd.size() > 0) {
+                nwsd.add(cell);
+            }
         }
 
         return nwsd;
     }
 
     private Collection getPossibleDigits(Cell cell) {
-        Collection digits = new ArrayList();
+        Integer[] digits = new Integer[10];
         for (int i = 1; i < 10; i++) {
-            digits.add(new Integer(i));
+            digits[i] = new Integer(i);
         }
 
         for (Iterator i = getNeighbors(cell).iterator(); i.hasNext();) {
             Cell neighbor = (Cell) i.next();
             int digit = neighbor.getDigit();
             if (digit != 0) {
-                digits.remove(new Integer(digit));
+                digits[digit] = null;
+            }
+        }
+        ArrayList result = new ArrayList();
+        for (int i = 1; i < 10; i++) {
+            if (digits[i] != null) {
+                result.add(digits[i]);
             }
         }
 
-        return digits;
+        System.out.print(cell + " ");
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            Integer d = (Integer) i.next();
+            System.out.print(d + " ");
+        }
+        System.out.println();
+        return result;
     }
 }
