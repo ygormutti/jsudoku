@@ -39,7 +39,7 @@
     </target>
 
     <target depends="init,compile" description="Packs Xlet into zip file" name="pack">
-        <zip zipfile="/tmp/Ginga-J_lesson_1.zip">
+        <zip zipfile="/tmp/jsudoku.zip">
             <zipfileset dir="build/" />
             <zipfileset dir="src/" excludes="*.java"/>
         </zip>
