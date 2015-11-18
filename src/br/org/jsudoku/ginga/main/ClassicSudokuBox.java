@@ -8,10 +8,11 @@ import br.org.jsudoku.ClassicBoard;
 import com.sun.dtv.lwuit.Container;
 import com.sun.dtv.lwuit.layouts.GridLayout;
 import com.sun.dtv.lwuit.plaf.Style;
+import java.awt.Color;
 
 public class ClassicSudokuBox extends Container {
 
-    static Style style;
+    Style style;
 
     public ClassicSudokuBox(CellButton[] buttons) {
         super();
@@ -25,12 +26,9 @@ public class ClassicSudokuBox extends Container {
     }
 
     private void initStyle() {
-        if (style == null) {
-            style = new Style();
+        style = getStyle();
 
-            //style.setMargin(10, 10, 10, 10);
-        }
-
-        setStyle(style);
+        style.setMargin(5, 5, 5, 5);
+        style.setBgColor(Color.BLACK);
     }
 }
