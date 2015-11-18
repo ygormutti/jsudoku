@@ -21,8 +21,8 @@ public class JSudokuXlet implements Xlet {
         try {
             MainForm form = new MainForm();
             form.show();
-        } catch (Exception ex) {
-            ex.printStackTrace(System.out);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
