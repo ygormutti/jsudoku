@@ -17,6 +17,8 @@ public class CellButton extends Button {
 
     Cell cell;
     Style style;
+    Color fontColor;
+    Color errorFontColor;
 
     public CellButton(Cell cell) {
         this.cell = cell;
@@ -42,15 +44,7 @@ public class CellButton extends Button {
     }
 
     public void setError(boolean error) {
-        if (error) {
-            style.setFgColor(Color.RED);
-        } else {
-            if (cell instanceof WritableCell) {
-                style.setFgColor(Color.BLACK);
-            } else {
-                style.setFgColor(Color.GRAY);
-            } // FIXME código repetido
-        }
+        style.setFgColor(error ? errorFontColor : fontColor);
     }
 
     private void initStyle() {
@@ -63,10 +57,14 @@ public class CellButton extends Button {
         style.setBgTransparency(255);
 
         if (cell instanceof WritableCell) {
-            style.setFgColor(Color.BLACK);
+            fontColor = Color.BLACK;
+            errorFontColor = Color.RED;
         } else {
-            style.setFgColor(Color.GRAY);
+            fontColor = Color.GRAY;
+            errorFontColor = Color.PINK;
         }
+
+        style.setFgColor(fontColor);
 
         setAlignment(HORIZONTAL_ALIGN_CENTER);
         setStyle(style);
