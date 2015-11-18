@@ -22,10 +22,25 @@ public class BoardFactory {
 
         return classicBoards[currentBoard++];
     }
+
     private static void initClassicBoards() {
         ArrayList list = new ArrayList();
 
         int[][] hints = new int[][]{
+            new int[]{6, 9, 4, 0, 0, 0, 1, 0, 0},
+            new int[]{8, 0, 0, 0, 0, 0, 0, 3, 4},
+            new int[]{0, 0, 3, 4, 9, 0, 8, 6, 0},
+            //
+            new int[]{3, 1, 8, 6, 5, 0, 2, 0, 0},
+            new int[]{0, 2, 0, 7, 0, 8, 6, 0, 0},
+            new int[]{7, 0, 6, 1, 2, 9, 0, 8, 0},
+            //
+            new int[]{4, 6, 0, 9, 0, 7, 3, 5, 8},
+            new int[]{0, 8, 0, 3, 6, 0, 0, 0, 2},
+            new int[]{0, 3, 5, 0, 4, 2, 0, 9, 6},};
+        list.add(new ClassicBoard(convertMatrixToHints(hints)));
+
+        hints = new int[][]{
             new int[]{0, 0, 9, 8, 5, 0, 0, 2, 0},
             new int[]{0, 5, 0, 9, 0, 3, 0, 7, 0},
             new int[]{7, 0, 0, 0, 0, 0, 3, 0, 0},
