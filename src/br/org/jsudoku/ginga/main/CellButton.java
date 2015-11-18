@@ -5,7 +5,6 @@
 package br.org.jsudoku.ginga.main;
 
 import br.org.jsudoku.Cell;
-import br.org.jsudoku.WritableCell;
 import com.sun.dtv.lwuit.Button;
 import com.sun.dtv.lwuit.Font;
 import com.sun.dtv.lwuit.plaf.Border;
@@ -44,6 +43,7 @@ public class CellButton extends Button {
 
     public void setError(boolean error) {
         style.setFgColor(error ? errorFontColor : fontColor);
+        style.setFgSelectionColor(error ? errorFontColor : fontColor);
     }
 
     private void initStyle() {
@@ -55,7 +55,7 @@ public class CellButton extends Button {
         style.setBgSelectionColor(Color.ORANGE);
         style.setBgTransparency(255);
 
-        if (cell instanceof WritableCell) {
+        if (cell.isWritable()) {
             fontColor = Color.BLACK;
             errorFontColor = Color.RED;
         } else {
